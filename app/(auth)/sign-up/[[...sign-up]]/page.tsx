@@ -14,7 +14,7 @@ const SignUpPage = () => {
         </div>
         <div className="flex items-center justify-center mt-8">
           <ClerkLoaded>
-            <SignUp path="/sign-in" />;
+            <SignUp path="/sign-up" />;
           </ClerkLoaded>
           <ClerkLoading>
             <Loader2 className="animate-spin text-muted-foreground" />
