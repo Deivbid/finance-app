@@ -8,6 +8,13 @@
       "when": 1723581669716,
       "tag": "0000_lazy_hulk",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1723602760750,
+      "tag": "0001_sloppy_doctor_strange",
+      "breakpoints": true
     }
   ]
 }
