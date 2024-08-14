@@ -1,11 +1,7 @@
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import { UserButton } from "@clerk/nextjs";
+"use client";
+import { useGetAccounts } from "@/features/accounts/api/useGetAccounts";
 
 export default function Home() {
-  return (
-    <p>
-      This is an authenticated route <UserButton />
-    </p>
-  );
+  const { data: accounts } = useGetAccounts();
+  return <div>homepage</div>;
 }
