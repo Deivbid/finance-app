@@ -20,7 +20,6 @@ export const TableHeadSelect = ({
   selectedColumns,
   onChange,
 }: TableHeadSelectProps) => {
-  console.log("A ver: ", selectedColumns, columnIndex);
   const currentSelection = selectedColumns[`column_${columnIndex}`];
   return (
     <Select

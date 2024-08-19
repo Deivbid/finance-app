@@ -13,6 +13,10 @@ import { useBulkDeleteTransactions } from "@/features/transactions/api/useBulkDe
 import { useState } from "react";
 import { UploadButton } from "./components/UploadButton";
 import { ImportCard } from "./components/ImportCard";
+import { transactions as transactionsSchema } from "@/db/schema";
+import { useSelectAccount } from "../accounts/useSelectAccount";
+import { toast } from "@/components/ui/use-toast";
+import { useBulkCreateTransactions } from "@/features/transactions/api/useBulkCreate";
 
 enum VARIANTS {
   LIST = "LIST",
@@ -26,8 +30,10 @@ const INITIAL_IMPORT_RESULTS = {
 };
 
 const TransactionsPage = () => {
+  const [AccountDialog, confirm] = useSelectAccount();
   const [variant, setVariant] = useState(VARIANTS.LIST);
   const [importResults, setImportResults] = useState(INITIAL_IMPORT_RESULTS);
+  const bulkCreateMutation = useBulkCreateTransactions();
   const { onOpen } = useNewTransaction();
   // Delete transactions
   const deleteTransactions = useBulkDeleteTransactions();
@@ -40,7 +46,6 @@ const TransactionsPage = () => {
     transactionsQuery.isLoading || deleteTransactions.isPending;
 
   const onUploadCSV = (results: typeof INITIAL_IMPORT_RESULTS) => {
-    console.log(results);
     setImportResults(results);
     setVariant(VARIANTS.IMPORT);
   };
@@ -48,6 +53,30 @@ const TransactionsPage = () => {
   const onCancelImport = () => {
     setImportResults(INITIAL_IMPORT_RESULTS);
     setVariant(VARIANTS.LIST);
+  };
+
+  const onSubmitImport = async (
+    values: (typeof transactionsSchema.$inferInsert)[]
+  ) => {
+    const accountId = await confirm();
+
+    if (!accountId) {
+      return toast({
+        variant: "destructive",
+        description: "Please select an account to continue.",
+      });
+    }
+
+    const data = values.map((value) => ({
+      ...value,
+      accountId: accountId as string,
+    }));
+
+    bulkCreateMutation.mutate(data, {
+      onSuccess: () => {
+        onCancelImport();
+      },
+    });
   };
 
   if (transactionsQuery.isLoading) {
@@ -69,11 +98,14 @@ const TransactionsPage = () => {
 
   if (variant === VARIANTS.IMPORT) {
     return (
-      <ImportCard
-        data={importResults.data}
-        onCancel={onCancelImport}
-        onSubmit={onUploadCSV}
-      />
+      <>
+        <AccountDialog />
+        <ImportCard
+          data={importResults.data}
+          onCancel={onCancelImport}
+          onSubmit={onUploadCSV}
+        />
+      </>
     );
   }
 
