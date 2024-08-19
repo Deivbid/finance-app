@@ -11,7 +11,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { createId } from "@paralleldrive/cuid2";
 import { z } from "zod";
-import { subDays, parse } from "date-fns";
+import { subDays, parse, format } from "date-fns";
 
 const app = new Hono()
   .get(
@@ -39,7 +39,7 @@ const app = new Hono()
       const startDate = from
         ? parse(from, "yyyy-MM-dd", new Date())
         : defaultFrom;
-      const enDate = to ? parse(to, "yyyy-MM-dd", new Date()) : defaultTo;
+      const endDate = to ? parse(to, "yyyy-MM-dd", new Date()) : defaultTo;
 
       const data = await db
         .select({
@@ -61,9 +61,9 @@ const app = new Hono()
         .where(
           and(
             accountId ? eq(transactions.accountId, accountId) : undefined,
-            eq(accounts.id, auth.userId),
+            eq(accounts.userId, auth.userId),
             gte(transactions.date, startDate),
-            lte(transactions.date, enDate)
+            lte(transactions.date, endDate)
           )
         )
         .orderBy(desc(transactions.date));
