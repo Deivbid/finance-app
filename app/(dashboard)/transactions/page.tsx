@@ -10,18 +10,45 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useNewTransaction } from "@/features/transactions/hooks/useNewTransaction";
 import { useGetTransactions } from "@/features/transactions/api/useGetTransactions";
 import { useBulkDeleteTransactions } from "@/features/transactions/api/useBulkDeleteTransaction";
+import { useState } from "react";
+import { UploadButton } from "./components/UploadButton";
+import { ImportCard } from "./components/ImportCard";
+
+enum VARIANTS {
+  LIST = "LIST",
+  IMPORT = "IMPORT",
+}
+
+const INITIAL_IMPORT_RESULTS = {
+  data: [],
+  errors: [],
+  meta: {},
+};
 
 const TransactionsPage = () => {
+  const [variant, setVariant] = useState(VARIANTS.LIST);
+  const [importResults, setImportResults] = useState(INITIAL_IMPORT_RESULTS);
   const { onOpen } = useNewTransaction();
-  // Delete Accounts
+  // Delete transactions
   const deleteTransactions = useBulkDeleteTransactions();
 
-  //Get Accounts
+  //Get transactions
   const transactionsQuery = useGetTransactions();
   const transactions = transactionsQuery.data || [];
 
   const isDisabled =
     transactionsQuery.isLoading || deleteTransactions.isPending;
+
+  const onUploadCSV = (results: typeof INITIAL_IMPORT_RESULTS) => {
+    console.log(results);
+    setImportResults(results);
+    setVariant(VARIANTS.IMPORT);
+  };
+
+  const onCancelImport = () => {
+    setImportResults(INITIAL_IMPORT_RESULTS);
+    setVariant(VARIANTS.LIST);
+  };
 
   if (transactionsQuery.isLoading) {
     return (
@@ -40,6 +67,16 @@ const TransactionsPage = () => {
     );
   }
 
+  if (variant === VARIANTS.IMPORT) {
+    return (
+      <ImportCard
+        data={importResults.data}
+        onCancel={onCancelImport}
+        onSubmit={onUploadCSV}
+      />
+    );
+  }
+
   return (
     <div className="max-w-screen-2xl mx-auto w-full px-4 py-6 lg:px-14 pb-10 -mt-24">
       <Card className="border-none drop-shadow-sm">
@@ -47,10 +84,13 @@ const TransactionsPage = () => {
           <CardTitle className="text-xl line-clamp-1">
             Transactions History
           </CardTitle>
-          <Button size="sm" onClick={onOpen}>
-            <Plus className="size-4 mr-2" />
-            Add New
-          </Button>
+          <div className="flex flex-col lg:flex-row gap-y-2 items-center gap-x-2">
+            <Button size="sm" onClick={onOpen} className="w-full lg:auto">
+              <Plus className="size-4 mr-2" />
+              Add New
+            </Button>
+            <UploadButton onUpload={onUploadCSV} />
+          </div>
         </CardHeader>
         <CardContent>
           <DataTable
