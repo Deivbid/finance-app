@@ -103,7 +103,7 @@ const TransactionsPage = () => {
         <ImportCard
           data={importResults.data}
           onCancel={onCancelImport}
-          onSubmit={onUploadCSV}
+          onSubmit={onSubmitImport}
         />
       </>
     );
