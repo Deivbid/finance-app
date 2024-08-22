@@ -111,6 +111,7 @@ export const ImportCard = ({ data, onCancel, onSubmit }: ImportCardProps) => {
               disabled={progress < requiredOptions.length}
               size="sm"
               className="w-full lg:auto"
+              onClick={handleContinue}
             >
               Continue ({progress} / {requiredOptions.length})
             </Button>

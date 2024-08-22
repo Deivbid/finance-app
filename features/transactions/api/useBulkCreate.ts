@@ -22,7 +22,7 @@ export const useBulkCreateTransactions = () => {
     },
     onSuccess: () => {
       toast({
-        description: "Transaction created",
+        description: "Transactions created",
       });
       queryClient.invalidateQueries({
         queryKey: ["transactions"],

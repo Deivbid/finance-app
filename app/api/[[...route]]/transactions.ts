@@ -159,7 +159,7 @@ const app = new Hono()
       const values = c.req.valid("json");
 
       if (!auth?.userId) {
-        return c.json({ error: "Unathorized" }, 401);
+        return c.json({ error: "Unauthorized" }, 401);
       }
 
       const data = await db
