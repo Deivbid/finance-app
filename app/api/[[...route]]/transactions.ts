@@ -11,12 +11,11 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { createId } from "@paralleldrive/cuid2";
 import { z } from "zod";
-import { subDays, parse, format } from "date-fns";
+import { subDays, parse } from "date-fns";
 
 const app = new Hono()
   .get(
     "/",
-    clerkMiddleware(),
     zValidator(
       "query",
       z.object({
@@ -25,12 +24,13 @@ const app = new Hono()
         accountId: z.string().optional(),
       })
     ),
+    clerkMiddleware(),
     async (c) => {
       const auth = getAuth(c);
       const { from, to, accountId } = c.req.valid("query");
 
       if (!auth?.userId) {
-        return c.json({ error: "Unathorized" }, 401);
+        return c.json({ error: "Unauthorized" }, 401);
       }
 
       const defaultTo = new Date();
@@ -44,16 +44,14 @@ const app = new Hono()
       const data = await db
         .select({
           id: transactions.id,
+          date: transactions.date,
           category: categories.name,
           categoryId: transactions.categoryId,
-
-          accountId: transactions.accountId,
-          account: accounts.name,
-
+          payee: transactions.payee,
           amount: transactions.amount,
           notes: transactions.notes,
-          date: transactions.date,
-          payee: transactions.payee,
+          account: accounts.name,
+          accountId: transactions.accountId,
         })
         .from(transactions)
         .innerJoin(accounts, eq(transactions.accountId, accounts.id))

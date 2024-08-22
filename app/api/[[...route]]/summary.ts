@@ -22,7 +22,6 @@ const app = new Hono().get(
   async (c) => {
     const auth = getAuth(c);
     const { from, to, accountId } = c.req.valid("query");
-
     if (!auth?.userId) {
       return c.json({ error: "Unathorized" }, 401);
     }
